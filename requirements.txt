@@ -5,6 +5,7 @@ charset-normalizer==3.4.7
 cryptography==49.0.0
 curl_cffi==0.15.0
 db-dtypes==1.7.0
+fredapi==0.5.2
 google-api-core==2.31.0
 google-auth==2.55.0
 google-auth-oauthlib==1.4.0
