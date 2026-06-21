@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    database: market-data-platform-500016
+    schema: raw
+    tables:
+      - name: stock_prices
+        description: "Raw daily OHLCV stock prices ingested from Yahoo Finance"
+      - name: macro_indicators
+        description: "Raw macroeconomic indicators ingested from FRED API"
