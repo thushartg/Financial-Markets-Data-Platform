@@ -118,4 +118,4 @@ Live Looker Studio dashboard built on top of `mart_stock_macro_analysis`:
 - Average daily returns by ticker
 - Federal funds rate over time
 
-[Link to Dashboard](#) ← replace with your actual Looker Studio link
+[[Link to Dashboard](https://datastudio.google.com/s/h6DyKaUf8oY)]
