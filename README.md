@@ -40,6 +40,8 @@ All orchestrated by Apache Airflow — runs every weekday at 6am.
 - Yield Curve Spread (T10Y2Y)
 - GDP (GDP)
 
+> Note: all 5 indicators are ingested into the raw layer. The current mart surfaces 4 of them (fed funds rate, CPI, unemployment, yield curve spread); GDP is ingested but not yet pivoted into `mart_stock_macro_analysis`.
+
 ## Pipeline
 
 ### Ingestion
@@ -50,7 +52,7 @@ Raw data is append-only and immutable — if a transformation breaks downstream,
 Three-layer transformation model:
 
 - **Staging** — `stg_stock_prices`, `stg_macro_indicators` materialize as views. Clean column names, cast data types, remove nulls.
-- **Marts** — `mart_stock_macro_analysis` materializes as a table. Calculates daily returns using LAG window function, 30-day rolling average prices, and joins macro conditions to each trading day.
+- **Marts** — `mart_stock_macro_analysis` materializes as a table. Calculates daily returns using a LAG window function, 30-day rolling average prices, and as-of joins the last-known macro values onto each trading day.
 
 ### Data Quality
 7 dbt tests run after every transformation:
@@ -71,8 +73,8 @@ Preserves full ingestion history. Enables reprocessing without API re-calls. Sta
 **Why dbt views for staging and tables for marts?**
 Staging views have no storage cost and always reflect current raw data. Mart tables are pre-computed for fast dashboard queries.
 
-**Why LEFT JOIN for macro data?**
-Macro indicators are monthly/quarterly while stock prices are daily. An INNER JOIN would eliminate most trading days. LEFT JOIN preserves all stock data and fills macro columns with the last known value where available.
+**Why an as-of join for macro data?**
+Stock prices are daily, while macro indicators are monthly or quarterly. An exact-date join would leave most trading days null, since a daily stock date rarely matches a monthly or quarterly observation date. Instead, each trading day is matched to the most recent macro observation on or before that date, resolved per series on the long (un-pivoted) macro table so a daily series can't blank out a monthly one. Every trading day therefore carries the last-known macro value rather than a null.
 
 **Why separate ingestion scripts per source?**
 Each source has independent failure modes. If Yahoo Finance is down, FRED ingestion still runs. Separation of concerns at the task level.
